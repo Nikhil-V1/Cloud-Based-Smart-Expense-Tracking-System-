@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import "tailwindcss";
+
+:root { font-family: 'DM Sans', sans-serif; color: #18211d; background: #f6f7f3; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.app-shell { max-width: 1180px; margin: 0 auto; padding: 0 34px 38px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 28px 0; border-bottom: 1px solid #dfe5de; }
+.brand { display: flex; gap: 10px; align-items: center; color: #18211d; text-decoration: none; font-weight: 700; font-size: 20px; letter-spacing: -.5px; }
+.brand-mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: #c8e56b; color: #243110; }
+.brand-mark svg { width: 19px; height: 19px; fill: currentColor; }
+.secure-label, .account { color: #637169; font-size: 13px; }
+.account { display: flex; gap: 18px; align-items: center; }
+.demo-banner { display: flex; gap: 10px; padding: 13px 16px; margin-top: 20px; border-radius: 10px; background: #eef7d3; color: #4d5b2e; font-size: 13px; }
+code { font-family: monospace; }
+.auth-card { display: grid; grid-template-columns: 1.1fr .9fr; gap: 80px; align-items: center; padding: 72px 8px 76px; }
+.eyebrow { margin: 0 0 12px; color: #80912d; font-size: 11px; font-weight: 700; letter-spacing: 1.8px; }
+h1, h2, h3 { margin: 0; color: #18211d; }
+h1 { max-width: 420px; font: 700 clamp(42px, 6vw, 72px)/.98 'Playfair Display', serif; letter-spacing: -2px; }
+h2 { font: 700 30px 'Playfair Display', serif; }
+h3 { font-size: 20px; }
+.muted { max-width: 360px; margin: 20px 0 0; color: #718078; line-height: 1.7; }
+.auth-form { padding: 26px; border: 1px solid #e0e6dc; border-radius: 16px; background: #fff; box-shadow: 0 14px 45px #2030190c; }
+.tabs { display: flex; gap: 24px; margin-bottom: 22px; border-bottom: 1px solid #e6ebe4; }
+.tab { padding: 0 0 12px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #8a958f; font-weight: 600; font-size: 13px; }
+.tab.active { border-color: #9dbc3f; color: #18211d; }
+label { display: grid; gap: 8px; margin-bottom: 16px; color: #56635b; font-size: 12px; font-weight: 600; }
+input, select { width: 100%; padding: 12px 13px; border: 1px solid #dce4da; border-radius: 8px; outline: none; background: #fbfcfa; color: #18211d; font-size: 14px; }
+input:focus, select:focus { border-color: #9dbc3f; box-shadow: 0 0 0 3px #c8e56b33; }
+.button { display: inline-flex; justify-content: center; align-items: center; gap: 16px; padding: 12px 17px; border: 0; border-radius: 8px; font-size: 13px; font-weight: 700; transition: transform .15s, background .15s; }
+.button:hover { transform: translateY(-1px); }
+.button-primary { width: 100%; background: #29372d; color: #fff; }
+.button-primary:hover { background: #1d2921; }
+.button-ghost { padding: 8px 12px; background: transparent; color: #526058; border: 1px solid #dbe3d8; }
+.form-message { margin: 12px 0 0; color: #69776f; font-size: 12px; line-height: 1.5; }
+.dashboard { padding-top: 10px; }
+.dashboard-heading, .panel-heading { display: flex; justify-content: space-between; align-items: center; }
+.date-chip, .expense-count { padding: 8px 12px; border-radius: 30px; background: #eaf0e4; color: #657260; font-size: 12px; }
+.stats { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 14px; margin: 26px 0 34px; }
+.stat-card { min-height: 135px; padding: 22px; border: 1px solid #dfe7dc; border-radius: 12px; background: #fff; }
+.stat-card span, .stat-card small { display: block; color: #76837a; font-size: 12px; }
+.stat-card strong { display: block; margin: 13px 0 8px; color: #25352a; font: 700 27px 'Playfair Display', serif; }
+.stat-highlight { border-color: #c8e56b; background: #e8f5b9; }
+.stat-highlight span, .stat-highlight small { color: #60732d; }
+.content-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 18px; }
+.panel { padding: 25px; border: 1px solid #dfe7dc; border-radius: 13px; background: #fff; }
+.plus-icon { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; background: #edf4d5; color: #75932c; font-size: 21px; }
+.expense-form { margin-top: 25px; }
+.two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.expense-list { margin-top: 19px; }
+.expense-row { display: flex; align-items: center; gap: 12px; padding: 15px 0; border-top: 1px solid #edf0eb; }
+.category-dot { width: 10px; height: 10px; flex: 0 0 auto; border-radius: 50%; background: #aac855; }
+.category-transport { background: #84b5c6; }.category-housing { background: #dba766; }.category-shopping { background: #bd94cb; }.category-health { background: #e88686; }.category-other { background: #a5aaa6; }
+.expense-info { flex: 1; min-width: 0; }.expense-info strong, .expense-info span { display: block; }.expense-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }.expense-info span { margin-top: 4px; color: #89948d; font-size: 11px; }
+.expense-amount { color: #354239; font-size: 14px; }.delete-button { border: 0; background: transparent; color: #a9b2ab; font-size: 20px; line-height: 1; }.delete-button:hover { color: #bd6161; }
+.empty-state { padding: 55px 0 30px; text-align: center; color: #78847d; }.empty-state p { margin: 0 0 6px; font-weight: 600; }.empty-state span { font-size: 12px; }
+footer { padding-top: 55px; text-align: center; color: #8a968e; font-size: 12px; } footer span { color: #9fbd42; }
+.loading-screen { display: grid; place-items: center; min-height: 100vh; color: #637169; }
+@media (max-width: 760px) { .app-shell { padding: 0 18px 30px; }.auth-card, .content-grid { grid-template-columns: 1fr; }.auth-card { gap: 35px; padding: 48px 0; }.stats { grid-template-columns: 1fr; }.stat-card { min-height: auto; }.topbar { padding: 20px 0; }.secure-label { display: none; }.account span { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
