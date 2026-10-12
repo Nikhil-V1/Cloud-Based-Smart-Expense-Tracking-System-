@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import type { Session } from '@supabase/supabase-js'
-import { supabase } from './lib/supabase'
+import {
+  addExpense as addCloudExpense,
+  firebaseConfigured,
+  createAccount,
+  deleteExpense as deleteCloudExpense,
+  login,
+  logout,
+  observeAuth,
+  observeExpenses,
+} from './lib/firebase'
 import './index.css'
 
 type Expense = {
@@ -28,9 +36,9 @@ function formatMoney(amount: number) {
 }
 
 function App() {
-  const [session, setSession] = useState<Session | null>(null)
+  const [session, setSession] = useState<{ userId: string; email: string } | null>(null)
   const [expenses, setExpenses] = useState<Expense[]>(demoExpenses)
-  const [loading, setLoading] = useState(Boolean(supabase))
+  const [loading, setLoading] = useState(firebaseConfigured)
   const [message, setMessage] = useState('')
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
@@ -43,29 +51,25 @@ function App() {
   })
 
   useEffect(() => {
-    if (!supabase) return
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
+    if (!firebaseConfigured) return
+    return observeAuth((user) => {
+      setSession(user)
       setLoading(false)
     })
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
-      setLoading(false)
-    })
-    return () => listener.subscription.unsubscribe()
   }, [])
 
   useEffect(() => {
-    if (!supabase || !session) return
-    async function loadExpenses() {
-      const { data, error } = await supabase!
-        .from('expenses')
-        .select('id, title, amount, category, expense_date')
-        .order('expense_date', { ascending: false })
-      if (error) setMessage(error.message)
-      else setExpenses((data as Expense[]) ?? [])
+    if (!firebaseConfigured || !session) return
+    const userId = session.userId
+    let unsubscribe: (() => void) | undefined
+    try {
+      unsubscribe = observeExpenses(userId, setExpenses, (error) => {
+        setMessage(error.message)
+      })
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to load expenses.')
     }
-    void loadExpenses()
+    return () => unsubscribe?.()
   }, [session])
 
   const total = useMemo(() => expenses.reduce((sum, expense) => sum + expense.amount, 0), [expenses])
@@ -73,16 +77,22 @@ function App() {
   async function handleAuth(event: FormEvent) {
     event.preventDefault()
     setMessage('')
-    if (!supabase) {
-      setMessage('Demo mode is active. Add your Supabase values to .env.local to enable login.')
+    if (!firebaseConfigured) {
+      setMessage('Demo mode is active. Add the Firebase values to .env.local to enable cloud login.')
       return
     }
-    const result =
-      authMode === 'login'
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password })
-    if (result.error) setMessage(result.error.message)
-    else setMessage(authMode === 'signup' ? 'Account created. Check your email to confirm it.' : 'Welcome back!')
+    try {
+      if (authMode === 'login') {
+        await login(email, password)
+        setMessage('Welcome back!')
+      } else {
+        await createAccount(email, password)
+        setMessage('Account created. You are now signed in.')
+        setAuthMode('login')
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Authentication failed.')
+    }
   }
 
   async function addExpense(event: FormEvent) {
@@ -93,17 +103,14 @@ function App() {
       return
     }
     const newExpense = { ...form, title: form.title.trim(), amount }
-    if (supabase && session) {
-      const { data, error } = await supabase
-        .from('expenses')
-        .insert({ ...newExpense, user_id: session.user.id })
-        .select('id, title, amount, category, expense_date')
-        .single()
-      if (error) {
-        setMessage(error.message)
+    if (firebaseConfigured && session) {
+      try {
+        const data = await addCloudExpense(session.userId, newExpense)
+        setExpenses((current) => [data, ...current])
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : 'Unable to save expense.')
         return
       }
-      setExpenses((current) => [data as Expense, ...current])
     } else {
       setExpenses((current) => [{ ...newExpense, id: crypto.randomUUID() }, ...current])
       setMessage('Saved locally in demo mode.')
@@ -112,10 +119,11 @@ function App() {
   }
 
   async function deleteExpense(id: string) {
-    if (supabase && session) {
-      const { error } = await supabase.from('expenses').delete().eq('id', id)
-      if (error) {
-        setMessage(error.message)
+    if (firebaseConfigured && session) {
+      try {
+        await deleteCloudExpense(id)
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : 'Unable to delete expense.')
         return
       }
     }
@@ -123,7 +131,7 @@ function App() {
   }
 
   async function signOut() {
-    await supabase?.auth.signOut()
+    if (firebaseConfigured) await logout()
     setSession(null)
     setExpenses(demoExpenses)
   }
@@ -144,7 +152,7 @@ function App() {
         </a>
         {session ? (
           <div className="account">
-            <span>{session.user.email}</span>
+            <span>{session.email}</span>
             <button className="button button-ghost" onClick={signOut}>Log out</button>
           </div>
         ) : (
@@ -152,10 +160,10 @@ function App() {
         )}
       </header>
 
-      {!supabase && (
+      {!firebaseConfigured && (
         <div className="demo-banner">
           <strong>Demo mode</strong>
-          <span>Sample expenses are shown. Supabase login and cloud saving will activate after you add your project values to <code>.env.local</code>.</span>
+          <span>Sample expenses are shown. Firebase login and cloud saving will activate after you add your project values to <code>.env.local</code>.</span>
         </div>
       )}
 
